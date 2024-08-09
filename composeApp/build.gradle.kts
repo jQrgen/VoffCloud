@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    kotlin("plugin.serialization") version "2.0.10"
 }
 
 kotlin {
@@ -29,7 +30,7 @@ kotlin {
         }
         binaries.executable()
     }
-    
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -37,7 +38,11 @@ kotlin {
         }
     }
     
-    jvm("desktop")
+    jvm("desktop") {
+        dependencies {
+            implementation(kotlin("reflect"))
+        }
+    }
     
     listOf(
         iosX64(),
@@ -52,7 +57,7 @@ kotlin {
     
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -66,6 +71,14 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+
+            val ktor_version: String = "3.0.0-beta-1"
+            implementation("io.ktor:ktor-client-core:$ktor_version")
+            implementation("io.ktor:ktor-client-cio:$ktor_version")
+            implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -107,6 +120,7 @@ android {
         compose = true
     }
     dependencies {
+        implementation(kotlin("reflect"))
         debugImplementation(compose.uiTooling)
     }
 }
